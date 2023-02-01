@@ -1,5 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using PlatformService.Models;
+using System.Reflection;
 
 namespace PlatformService.Data
 {
