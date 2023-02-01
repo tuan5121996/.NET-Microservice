@@ -6,7 +6,7 @@ using PlatformService.Models;
 
 namespace PlatformService.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PlatformsController : ControllerBase
     {
@@ -26,7 +26,7 @@ namespace PlatformService.Controllers
             return Ok(_mapper.Map<IEnumerable<PlatformReadDto>>(platformItem));
         }
 
-        [HttpGet]
+        [HttpGet("{id}", Name = "GetPlatformById")]
         public ActionResult<PlatformReadDto> GetPlatformById(int id)
         {
             var platformItem = _repository.GetPlatformById(id);
@@ -44,7 +44,7 @@ namespace PlatformService.Controllers
             _repository.CreatePlatform(platformModel);
             _repository.SaveChanges();
             var platformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
-            return CreatedAtRoute(nameof(GetPlatformById), new { id = platformReadDto.Id }, platformReadDto);
+            return CreatedAtRoute(nameof(GetPlatformById), new { Id = platformReadDto.Id }, platformReadDto);
         }
     }
 }
