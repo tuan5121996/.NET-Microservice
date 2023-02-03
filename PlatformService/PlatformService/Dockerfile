@@ -1,25 +1,17 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-#Depending on the operating system of the host machines(s) that will build or run the containers, the image specified in the FROM statement may need to be changed.
-#For more information, please see https://aka.ms/containercompat
-
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+# https://hub.docker.com/_/microsoft-dotnet
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["PlatformService/PlatformService.csproj", "PlatformService/"]
-RUN dotnet restore "PlatformService/PlatformService.csproj"
-COPY . .
-WORKDIR "/src/PlatformService"
-RUN dotnet build "PlatformService.csproj" -c Release -o /app/build
+# copy csproj and restore as distinct layers
+COPY *.csproj ./
+RUN dotnet restore
 
-FROM build AS publish
-RUN dotnet publish "PlatformService.csproj" -c Release -o /app/publish
+# copy everything else and build app
+COPY . ./
+RUN dotnet publish -c Release -o out
 
-FROM base AS final
+# final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "PlatformService.dll"]
